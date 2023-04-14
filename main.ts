@@ -72,16 +72,27 @@ namespace ClipBit {
     pins.digitalWritePin(DigitalPin.P6, 0);
     //pins.analogWritePin( AnalogPin.P6, 800 )
 
-    let buttonHandlers: { [key: number]: () => void } = {};
+    let pressHandlers: { [key: number]: () => void } = {};
+    let releaseHandlers: { [key: number]: () => void } = {};
 
     function buttonEvent(button: ClipBitButton, state: boolean) {
-        if (buttonHandlers[button])
-            buttonHandlers[button]();
+        if( state ) {
+            if (pressHandlers[button])
+                pressHandlers[button]();
+        } else {
+            if (releaseHandlers[button])
+                releaseHandlers[button]();
+        }
     }
 
     //% block="on ClipBit button $button pressed"
     export function onClipBitButtonPressed(button: ClipBitButton = ClipBitButton.L1, handler: () => void) {
-        buttonHandlers[button] = handler;
+        pressHandlers[button] = handler;
+    }
+
+    //% block="on ClipBit button $button pressed"
+    export function onClipBitButtonReleased(button: ClipBitButton = ClipBitButton.L1, handler: () => void) {
+        releaseHandlers[button] = handler;
     }
 
     //% block="set ClipBit LED $led to $on"
@@ -113,8 +124,34 @@ namespace ClipBit {
             if( port_a != old_a || port_b != old_b ) {
                 if ((port_a & ButtonMasks.C) != (old_a & ButtonMasks.C))
                     buttonEvent(ClipBitButton.C, (port_a & ButtonMasks.C) == ButtonMasks.C)
-                if ((port_a & ButtonMasks.D) != (old_a & ButtonMasks.D))
-                    buttonEvent(ClipBitButton.D, (port_a & ButtonMasks.D) == ButtonMasks.D)
+                if ((port_a & ButtonMasks.L1) != (old_a & ButtonMasks.L1))
+                    buttonEvent(ClipBitButton.L1, (port_a & ButtonMasks.L1) == ButtonMasks.L1)
+                if ((port_a & ButtonMasks.L2) != (old_a & ButtonMasks.L2))
+                    buttonEvent(ClipBitButton.L2, (port_a & ButtonMasks.L2) == ButtonMasks.L2)
+                if ((port_a & ButtonMasks.L3) != (old_a & ButtonMasks.L3))
+                    buttonEvent(ClipBitButton.L3, (port_a & ButtonMasks.L3) == ButtonMasks.L3)
+                if ((port_a & ButtonMasks.L4) != (old_a & ButtonMasks.L4))
+                    buttonEvent(ClipBitButton.L4, (port_a & ButtonMasks.L4) == ButtonMasks.L4)
+                if ((port_a & ButtonMasks.L5) != (old_a & ButtonMasks.L5))
+                    buttonEvent(ClipBitButton.L5, (port_a & ButtonMasks.L5) == ButtonMasks.L5)
+                if ((port_a & ButtonMasks.L6) != (old_a & ButtonMasks.L6))
+                    buttonEvent(ClipBitButton.L6, (port_a & ButtonMasks.L6) == ButtonMasks.L6)
+
+                if ((port_b & ButtonMasks.D) != (old_b & ButtonMasks.D))
+                    buttonEvent(ClipBitButton.D, (port_b & ButtonMasks.D) == ButtonMasks.D)
+                if ((port_a & ButtonMasks.R1) != (old_a & ButtonMasks.R1))
+                    buttonEvent(ClipBitButton.R1, (port_a & ButtonMasks.R1) == ButtonMasks.R1)
+                if ((port_a & ButtonMasks.R2) != (old_a & ButtonMasks.R2))
+                    buttonEvent(ClipBitButton.R2, (port_a & ButtonMasks.R2) == ButtonMasks.R2)
+                if ((port_a & ButtonMasks.R3) != (old_a & ButtonMasks.R3))
+                    buttonEvent(ClipBitButton.R3, (port_a & ButtonMasks.R3) == ButtonMasks.R3)
+                if ((port_a & ButtonMasks.R4) != (old_a & ButtonMasks.R4))
+                    buttonEvent(ClipBitButton.R4, (port_a & ButtonMasks.R4) == ButtonMasks.R4)
+                if ((port_a & ButtonMasks.R5) != (old_a & ButtonMasks.R5))
+                    buttonEvent(ClipBitButton.R5, (port_a & ButtonMasks.R5) == ButtonMasks.R5)
+                if ((port_a & ButtonMasks.R6) != (old_a & ButtonMasks.R6))
+                    buttonEvent(ClipBitButton.R6, (port_a & ButtonMasks.R6) == ButtonMasks.R6)
+
             }
             
             // Sync with the old values
