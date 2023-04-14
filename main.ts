@@ -14,7 +14,7 @@ enum ClipBitDisplay { LEFT, RIGHT }
 /**
  * Events are functions that take a function (lambda) as the last argument
  */
-//% color="#AA278D"
+//% color="#BC986A" icon="\uf0ea"
 namespace ClipBit {
 
     const PCA9555_BASE_ADDRESS = 0x20
@@ -106,9 +106,9 @@ namespace ClipBit {
     writeRegister(RIGHT_SEGMENT, PCA9555_CMD.OUTPUT_1, 0xFF);
 
     // Will be our PWM pin for 7-seg brightness, but just go fullbright for now
-    led.enable( false );
+    /*led.enable( false );
     pins.digitalWritePin(DigitalPin.P6, 0);
-    led.enable(false);
+    led.enable(false);*/
     //pins.analogWritePin( AnalogPin.P6, 800 )
 
     let pressHandlers: { [key: number]: () => void } = {};
