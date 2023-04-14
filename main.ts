@@ -121,7 +121,7 @@ namespace ClipBit {
             let port_a = readRegister(SYSTEM_IO, PCA9555_CMD.INPUT_0)
             let port_b = readRegister(SYSTEM_IO, PCA9555_CMD.INPUT_1)
 
-            if( port_a != old_a || port_b != old_b ) {
+            if (port_a != old_a) {
                 if ((port_a & ButtonMasks.C) != (old_a & ButtonMasks.C))
                     buttonEvent(ClipBitButton.C, (port_a & ButtonMasks.C) == ButtonMasks.C)
                 if ((port_a & ButtonMasks.L1) != (old_a & ButtonMasks.L1))
@@ -136,7 +136,8 @@ namespace ClipBit {
                     buttonEvent(ClipBitButton.L5, (port_a & ButtonMasks.L5) == ButtonMasks.L5)
                 if ((port_a & ButtonMasks.L6) != (old_a & ButtonMasks.L6))
                     buttonEvent(ClipBitButton.L6, (port_a & ButtonMasks.L6) == ButtonMasks.L6)
-
+            }
+            if (port_b != old_b) {
                 if ((port_b & ButtonMasks.D) != (old_b & ButtonMasks.D))
                     buttonEvent(ClipBitButton.D, (port_b & ButtonMasks.D) == ButtonMasks.D)
                 if ((port_a & ButtonMasks.R1) != (old_a & ButtonMasks.R1))
@@ -151,7 +152,6 @@ namespace ClipBit {
                     buttonEvent(ClipBitButton.R5, (port_a & ButtonMasks.R5) == ButtonMasks.R5)
                 if ((port_a & ButtonMasks.R6) != (old_a & ButtonMasks.R6))
                     buttonEvent(ClipBitButton.R6, (port_a & ButtonMasks.R6) == ButtonMasks.R6)
-
             }
             
             // Sync with the old values
