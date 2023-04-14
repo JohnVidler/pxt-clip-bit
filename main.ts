@@ -90,7 +90,7 @@ namespace ClipBit {
         pressHandlers[button] = handler;
     }
 
-    //% block="on ClipBit button $button pressed"
+    //% block="on ClipBit button $button released"
     export function onClipBitButtonReleased(button: ClipBitButton = ClipBitButton.L1, handler: () => void) {
         releaseHandlers[button] = handler;
     }
