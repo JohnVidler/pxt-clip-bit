@@ -141,17 +141,17 @@ namespace ClipBit {
                 if ((port_b & ButtonMasks.D) != (old_b & ButtonMasks.D))
                     buttonEvent(ClipBitButton.D, (port_b & ButtonMasks.D) == ButtonMasks.D)
                 if ((port_b & ButtonMasks.R1) != (old_b & ButtonMasks.R1))
-                    buttonEvent(ClipBitButton.R1, (port_a & ButtonMasks.R1) == ButtonMasks.R1)
+                    buttonEvent(ClipBitButton.R1, (port_b & ButtonMasks.R1) == ButtonMasks.R1)
                 if ((port_b & ButtonMasks.R2) != (old_b & ButtonMasks.R2))
-                    buttonEvent(ClipBitButton.R2, (port_a & ButtonMasks.R2) == ButtonMasks.R2)
+                    buttonEvent(ClipBitButton.R2, (port_b & ButtonMasks.R2) == ButtonMasks.R2)
                 if ((port_b & ButtonMasks.R3) != (old_b & ButtonMasks.R3))
-                    buttonEvent(ClipBitButton.R3, (port_a & ButtonMasks.R3) == ButtonMasks.R3)
+                    buttonEvent(ClipBitButton.R3, (port_b & ButtonMasks.R3) == ButtonMasks.R3)
                 if ((port_b & ButtonMasks.R4) != (old_b & ButtonMasks.R4))
-                    buttonEvent(ClipBitButton.R4, (port_a & ButtonMasks.R4) == ButtonMasks.R4)
+                    buttonEvent(ClipBitButton.R4, (port_b & ButtonMasks.R4) == ButtonMasks.R4)
                 if ((port_b & ButtonMasks.R5) != (old_b & ButtonMasks.R5))
-                    buttonEvent(ClipBitButton.R5, (port_a & ButtonMasks.R5) == ButtonMasks.R5)
+                    buttonEvent(ClipBitButton.R5, (port_b & ButtonMasks.R5) == ButtonMasks.R5)
                 if ((port_b & ButtonMasks.R6) != (old_b & ButtonMasks.R6))
-                    buttonEvent(ClipBitButton.R6, (port_a & ButtonMasks.R6) == ButtonMasks.R6)
+                    buttonEvent(ClipBitButton.R6, (port_b & ButtonMasks.R6) == ButtonMasks.R6)
             }
             
             // Sync with the old values
