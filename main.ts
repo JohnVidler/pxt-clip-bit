@@ -16,7 +16,7 @@ namespace ClipBit {
 
     const PCA9555_BASE_ADDRESS = 0x20
     const SYSTEM_IO = PCA9555_BASE_ADDRESS | 0b0010
-    const LEFT_SEGMENT = 0x02
+    const LEFT_SEGMENT = PCA9555_BASE_ADDRESS | 0b0000
     const RIGHT_SEGMENT = PCA9555_BASE_ADDRESS | 0b0001
 
     export enum PCA9555_CMD {
@@ -99,5 +99,30 @@ namespace ClipBit {
         else
             writeRegister(SYSTEM_IO, port, 0x00)
     }
+
+    control.runInBackground(() => {
+        // Ensure we have up-to-date current values
+        let old_a = readRegister(SYSTEM_IO, PCA9555_CMD.INPUT_0)
+        let old_b = readRegister(SYSTEM_IO, PCA9555_CMD.INPUT_1)
+
+        while (true) {
+            // Read the new values
+            let port_a = readRegister(SYSTEM_IO, PCA9555_CMD.INPUT_0)
+            let port_b = readRegister(SYSTEM_IO, PCA9555_CMD.INPUT_1)
+
+            if( port_a != old_a || port_b != old_b ) {
+                if ((port_a & ButtonMasks.C) != (old_a & ButtonMasks.C))
+                    buttonEvent(ClipBitButton.C, (port_a & ButtonMasks.C) == ButtonMasks.C)
+                if ((port_a & ButtonMasks.D) != (old_a & ButtonMasks.D))
+                    buttonEvent(ClipBitButton.D, (port_a & ButtonMasks.D) == ButtonMasks.D)
+            }
+            
+            // Sync with the old values
+            old_a = port_a
+            old_b = port_b
+
+            pause( 50 )
+        }
+    })
 
 }
