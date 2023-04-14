@@ -69,7 +69,9 @@ namespace ClipBit {
     writeRegister(LEFT_SEGMENT, PCA9555_CMD.OUTPUT_1, 0xFF);
 
     // Will be our PWM pin for 7-seg brightness, but just go fullbright for now
+    led.enable( false );
     pins.digitalWritePin(DigitalPin.P6, 0);
+    led.enable(false);
     //pins.analogWritePin( AnalogPin.P6, 800 )
 
     let pressHandlers: { [key: number]: () => void } = {};
@@ -109,6 +111,18 @@ namespace ClipBit {
             writeRegister(SYSTEM_IO, port, mask)
         else
             writeRegister(SYSTEM_IO, port, 0x00)
+    }
+
+    //% block="set ClipBit display to $value"
+    export function setDigitDisplay( value: number ) {
+        led.enable(false)
+        pins.digitalWritePin(DigitalPin.P6, 1)
+
+        writeRegister(LEFT_SEGMENT, PCA9555_CMD.OUTPUT_0, 0x00)
+        writeRegister(LEFT_SEGMENT, PCA9555_CMD.OUTPUT_1, 0x00)
+
+        pause(1000)
+        led.enable(true)
     }
 
     control.runInBackground(() => {
