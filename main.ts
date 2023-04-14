@@ -72,7 +72,7 @@ namespace ClipBit {
     pins.digitalWritePin(DigitalPin.P6, 0);
     //pins.analogWritePin( AnalogPin.P6, 800 )
 
-    let buttonHandlers: { [key: number]: () => void };
+    let buttonHandlers: { [key: number]: () => void } = {};
 
     function buttonEvent(button: ClipBitButton, state: boolean) {
         if (buttonHandlers[button])
