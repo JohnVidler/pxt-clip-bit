@@ -66,7 +66,7 @@ namespace ClipBit {
     writeRegister(LEFT_SEGMENT, PCA9555_CMD.CONFIG_1, 0x00)
 
     writeRegister(LEFT_SEGMENT, PCA9555_CMD.OUTPUT_0, 0x00);
-    writeRegister(LEFT_SEGMENT, PCA9555_CMD.OUTPUT_1, 0xFF);
+    writeRegister(LEFT_SEGMENT, PCA9555_CMD.OUTPUT_1, 0x00);
 
     // Will be our PWM pin for 7-seg brightness, but just go fullbright for now
     led.enable( false );
@@ -118,8 +118,11 @@ namespace ClipBit {
         led.enable(false)
         pins.digitalWritePin(DigitalPin.P6, 1)
 
-        writeRegister(LEFT_SEGMENT, PCA9555_CMD.OUTPUT_0, 0x00)
-        writeRegister(LEFT_SEGMENT, PCA9555_CMD.OUTPUT_1, 0x00)
+        for( let i=0; i<255; i++ ) {
+            writeRegister(LEFT_SEGMENT, PCA9555_CMD.OUTPUT_0, i)
+            writeRegister(LEFT_SEGMENT, PCA9555_CMD.OUTPUT_1, i)
+            pause(50)
+        }
 
         pause(1000)
         led.enable(true)
