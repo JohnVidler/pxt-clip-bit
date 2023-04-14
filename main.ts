@@ -8,6 +8,9 @@ enum ClipBitButton {
 //% blockNamespace=ClipBit
 enum ClipBitLED { C, D }
 
+//% blockNamespace=ClipBit
+enum ClipBitDisplay { LEFT, RIGHT }
+
 /**
  * Events are functions that take a function (lambda) as the last argument
  */
@@ -47,6 +50,34 @@ namespace ClipBit {
         R6 = 0b00000001
     }
 
+    //    A
+    //  F   B
+    //    G
+    //  E   C
+    //    D    DP
+
+    //   G F A B DP C D E
+
+    const LEDDigit = [
+        0b10001000, // 0
+        0b11101011, // 1
+        0b01001100, // 2
+        0b01001001, // 3
+        0b00101011, // 4
+        0b00011001, // 5
+        0b00011000, // 6
+        0b11001011, // 7
+        0b00001000, // 8
+        0b00001011, // 9
+        0b00001010, // A
+        0b00111000, // b
+        0b01111100, // c
+        0b01101000, // d
+        0b00011100, // E
+        0b00011110, // F
+        0b11110111  // .
+    ]
+
     function writeRegister(address: number, register: number, value: number) {
         pins.i2cWriteBuffer(address, Buffer.fromArray([register, value]), false)
     }
@@ -65,8 +96,14 @@ namespace ClipBit {
     writeRegister(LEFT_SEGMENT, PCA9555_CMD.CONFIG_0, 0x00)
     writeRegister(LEFT_SEGMENT, PCA9555_CMD.CONFIG_1, 0x00)
 
-    writeRegister(LEFT_SEGMENT, PCA9555_CMD.OUTPUT_0, 0x00);
-    writeRegister(LEFT_SEGMENT, PCA9555_CMD.OUTPUT_1, 0x00);
+    writeRegister(LEFT_SEGMENT, PCA9555_CMD.OUTPUT_0, 0xFF);
+    writeRegister(LEFT_SEGMENT, PCA9555_CMD.OUTPUT_1, 0xFF);
+
+    writeRegister(RIGHT_SEGMENT, PCA9555_CMD.CONFIG_0, 0x00)
+    writeRegister(RIGHT_SEGMENT, PCA9555_CMD.CONFIG_1, 0x00)
+
+    writeRegister(RIGHT_SEGMENT, PCA9555_CMD.OUTPUT_0, 0xFF);
+    writeRegister(RIGHT_SEGMENT, PCA9555_CMD.OUTPUT_1, 0xFF);
 
     // Will be our PWM pin for 7-seg brightness, but just go fullbright for now
     led.enable( false );
@@ -113,19 +150,29 @@ namespace ClipBit {
             writeRegister(SYSTEM_IO, port, 0x00)
     }
 
-    //% block="set ClipBit display to $value"
-    export function setDigitDisplay( value: number ) {
-        led.enable(false)
-        pins.digitalWritePin(DigitalPin.P6, 1)
+    //% block="set ClipBit $display display to $value"
+    export function setDigitDisplay( display: ClipBitDisplay, value: number ) {
+        value = Math.abs(value % 100)
+        let valStr = `${value}`
 
-        for( let i=0; i<255; i++ ) {
-            writeRegister(LEFT_SEGMENT, PCA9555_CMD.OUTPUT_0, i)
-            writeRegister(LEFT_SEGMENT, PCA9555_CMD.OUTPUT_1, i)
-            pause(50)
+        if( display == ClipBitDisplay.LEFT ) {
+            if( value < 10 ) {
+                writeRegister(LEFT_SEGMENT, PCA9555_CMD.OUTPUT_0, 0xFF)
+                writeRegister(LEFT_SEGMENT, PCA9555_CMD.OUTPUT_1, LEDDigit[parseInt(valStr[0], 10)])
+            } else {
+                writeRegister(LEFT_SEGMENT, PCA9555_CMD.OUTPUT_0, LEDDigit[parseInt(valStr[0], 10) ])
+                writeRegister(LEFT_SEGMENT, PCA9555_CMD.OUTPUT_1, LEDDigit[parseInt(valStr[1], 10)])
+            }
         }
-
-        pause(1000)
-        led.enable(true)
+        else {
+            if (value < 10) {
+                writeRegister(RIGHT_SEGMENT, PCA9555_CMD.OUTPUT_1, 0xFF)
+                writeRegister(RIGHT_SEGMENT, PCA9555_CMD.OUTPUT_0, LEDDigit[parseInt(valStr[0], 10)])
+            } else {
+                writeRegister(RIGHT_SEGMENT, PCA9555_CMD.OUTPUT_1, LEDDigit[parseInt(valStr[0], 10)])
+                writeRegister(RIGHT_SEGMENT, PCA9555_CMD.OUTPUT_0, LEDDigit[parseInt(valStr[1], 10)])
+            }
+        }
     }
 
     control.runInBackground(() => {
