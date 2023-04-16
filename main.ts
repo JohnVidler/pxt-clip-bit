@@ -11,6 +11,9 @@ enum ClipBitLED { C, D }
 //% blockNamespace=ClipBit
 enum ClipBitDisplay { LEFT, RIGHT }
 
+//% blockNamespace=ClipBit
+enum ClipBitNumberBase { DECIMAL, HEXADECIMAL }
+
 /**
  * Events are functions that take a function (lambda) as the last argument
  */
@@ -150,21 +153,22 @@ namespace ClipBit {
             writeRegister(SYSTEM_IO, port, 0x00)
     }
 
-    //% block="set ClipBit $display display to $value"
-    export function setDigitDisplay( display: ClipBitDisplay, value: number ) {
-        value = Math.abs(value % 100)
-        let valStr = `${value}`
+    //% block="set ClipBit $display display to $value | as $style"
+    export function setDigitDisplay( display: ClipBitDisplay, value: number, style: ClipBitNumberBase = ClipBitNumberBase.DECIMAL ) {
+        if( style == ClipBitNumberBase.DECIMAL ) {
+            value = Math.abs(value % 100)
+            let valStr = `${value}`
 
-        if( display == ClipBitDisplay.LEFT ) {
-            if( value < 10 ) {
-                writeRegister(LEFT_SEGMENT, PCA9555_CMD.OUTPUT_0, 0xFF)
-                writeRegister(LEFT_SEGMENT, PCA9555_CMD.OUTPUT_1, LEDDigit[parseInt(valStr[0], 10)])
-            } else {
-                writeRegister(LEFT_SEGMENT, PCA9555_CMD.OUTPUT_0, LEDDigit[parseInt(valStr[0], 10) ])
-                writeRegister(LEFT_SEGMENT, PCA9555_CMD.OUTPUT_1, LEDDigit[parseInt(valStr[1], 10)])
+            if( display == ClipBitDisplay.LEFT ) {
+                if( value < 10 ) {
+                    writeRegister(LEFT_SEGMENT, PCA9555_CMD.OUTPUT_0, 0xFF)
+                    writeRegister(LEFT_SEGMENT, PCA9555_CMD.OUTPUT_1, LEDDigit[parseInt(valStr[0], 10)])
+                } else {
+                    writeRegister(LEFT_SEGMENT, PCA9555_CMD.OUTPUT_0, LEDDigit[parseInt(valStr[0], 10) ])
+                    writeRegister(LEFT_SEGMENT, PCA9555_CMD.OUTPUT_1, LEDDigit[parseInt(valStr[1], 10)])
+                }
+                return
             }
-        }
-        else {
             if (value < 10) {
                 writeRegister(RIGHT_SEGMENT, PCA9555_CMD.OUTPUT_1, 0xFF)
                 writeRegister(RIGHT_SEGMENT, PCA9555_CMD.OUTPUT_0, LEDDigit[parseInt(valStr[0], 10)])
@@ -172,8 +176,34 @@ namespace ClipBit {
                 writeRegister(RIGHT_SEGMENT, PCA9555_CMD.OUTPUT_1, LEDDigit[parseInt(valStr[0], 10)])
                 writeRegister(RIGHT_SEGMENT, PCA9555_CMD.OUTPUT_0, LEDDigit[parseInt(valStr[1], 10)])
             }
+            return
         }
+
+        value = Math.abs(value % 0xff)
+        let lower = value % 16
+        let upper = Math.floor(value / 16)
+
+        if (display == ClipBitDisplay.LEFT) {
+            writeRegister(LEFT_SEGMENT, PCA9555_CMD.OUTPUT_0, LEDDigit[upper])
+            writeRegister(LEFT_SEGMENT, PCA9555_CMD.OUTPUT_1, LEDDigit[lower])
+            return
+        }
+        writeRegister(RIGHT_SEGMENT, PCA9555_CMD.OUTPUT_1, LEDDigit[upper])
+        writeRegister(RIGHT_SEGMENT, PCA9555_CMD.OUTPUT_0, LEDDigit[lower])
     }
+
+    //% block="clear the $display ClipBit display"
+    export function clearDigitDisplay( display : ClipBitDisplay ) {
+        if( display == ClipBitDisplay.RIGHT ) {
+            writeRegister(RIGHT_SEGMENT, PCA9555_CMD.OUTPUT_1, 0xFF)
+            writeRegister(RIGHT_SEGMENT, PCA9555_CMD.OUTPUT_0, 0xFF)
+            return
+        }
+        writeRegister(LEFT_SEGMENT, PCA9555_CMD.OUTPUT_1, 0xFF)
+        writeRegister(LEFT_SEGMENT, PCA9555_CMD.OUTPUT_0, 0xFF)
+    }
+
+
 
     control.runInBackground(() => {
         // Ensure we have up-to-date current values
