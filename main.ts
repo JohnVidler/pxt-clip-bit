@@ -146,7 +146,7 @@ namespace ClipBit {
     export function clipBitPixel( button: ClipBitButton = ClipBitButton.L1 ): number {
         if( button < 6 )
             return button
-        return 12 - button;
+        return 11 - (button-6);
     }
 
     //% block="on ClipBit button $button pressed"
