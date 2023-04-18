@@ -181,7 +181,7 @@ namespace ClipBit {
             writeRegister(SYSTEM_IO, port, 0x00)
     }
 
-    //% block="set ClipBit $display display to $value | as $style"
+    //% block="set ClipBit $display display to $value || as $style"
     export function setDigitDisplay( display: ClipBitDisplay, value: number, style: ClipBitNumberBase = ClipBitNumberBase.DECIMAL ) {
         if( style == ClipBitNumberBase.DECIMAL ) {
             value = Math.abs(value % 100)
