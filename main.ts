@@ -117,9 +117,11 @@ namespace ClipBit {
     led.enable(false);*/
     //pins.analogWritePin( AnalogPin.P6, 800 )
 
-    let pressHandlers: { [key: number]: () => void } = {};
-    let releaseHandlers: { [key: number]: () => void } = {};
-    let eventHandlers: { (button: ClipBitButton, event: ClipBitButtonState): void; } [] = [];
+    let digitValues = [ 0, 0 ]
+    let digitStates = [ false, false ]
+    let pressHandlers: { [key: number]: () => void } = {}
+    let releaseHandlers: { [key: number]: () => void } = {}
+    let eventHandlers: { (button: ClipBitButton, event: ClipBitButtonState): void; } [] = []
 
     function buttonEvent(button: ClipBitButton, state: boolean) {
         if( state ) {
@@ -135,6 +137,18 @@ namespace ClipBit {
         }
     }
 
+    //% block="ClipBit button $button"
+    export function clipBitButton( button: ClipBitButton = ClipBitButton.L1 ): number {
+        return button
+    }
+
+    //% block="ClipBit pixel $button"
+    export function clipBitPixel( button: ClipBitButton = ClipBitButton.L1 ): number {
+        if( button < 6 )
+            return button
+        return 12 - button;
+    }
+
     //% block="on ClipBit button $button pressed"
     export function onClipBitButtonPressed(button: ClipBitButton = ClipBitButton.L1, handler: () => void) {
         pressHandlers[button] = handler;
@@ -147,7 +161,6 @@ namespace ClipBit {
 
     //% block="on ClipBit $button $event event"
     //% draggableParameters
-    //% group="Advanced Functions"
     export function onClipBitButtonEvent(handler: (button: ClipBitButton, event: ClipBitButtonState) => void) {
         eventHandlers.push( handler );
     }
@@ -182,6 +195,8 @@ namespace ClipBit {
                     writeRegister(LEFT_SEGMENT, PCA9555_CMD.OUTPUT_0, LEDDigit[parseInt(valStr[0], 10) ])
                     writeRegister(LEFT_SEGMENT, PCA9555_CMD.OUTPUT_1, LEDDigit[parseInt(valStr[1], 10)])
                 }
+                digitValues[ClipBitDisplay.LEFT] = value
+                digitStates[ClipBitDisplay.LEFT] = true
                 return
             }
             if (value < 10) {
@@ -191,6 +206,8 @@ namespace ClipBit {
                 writeRegister(RIGHT_SEGMENT, PCA9555_CMD.OUTPUT_1, LEDDigit[parseInt(valStr[0], 10)])
                 writeRegister(RIGHT_SEGMENT, PCA9555_CMD.OUTPUT_0, LEDDigit[parseInt(valStr[1], 10)])
             }
+            digitValues[ClipBitDisplay.RIGHT] = value
+            digitStates[ClipBitDisplay.RIGHT] = true
             return
         }
 
@@ -201,10 +218,14 @@ namespace ClipBit {
         if (display == ClipBitDisplay.LEFT) {
             writeRegister(LEFT_SEGMENT, PCA9555_CMD.OUTPUT_0, LEDDigit[upper])
             writeRegister(LEFT_SEGMENT, PCA9555_CMD.OUTPUT_1, LEDDigit[lower])
+            digitValues[ClipBitDisplay.LEFT] = value
+            digitStates[ClipBitDisplay.LEFT] = true
             return
         }
         writeRegister(RIGHT_SEGMENT, PCA9555_CMD.OUTPUT_1, LEDDigit[upper])
         writeRegister(RIGHT_SEGMENT, PCA9555_CMD.OUTPUT_0, LEDDigit[lower])
+        digitValues[ClipBitDisplay.RIGHT] = value
+        digitStates[ClipBitDisplay.RIGHT] = true
     }
 
     //% block="clear the $display ClipBit display"
@@ -212,13 +233,23 @@ namespace ClipBit {
         if( display == ClipBitDisplay.RIGHT ) {
             writeRegister(RIGHT_SEGMENT, PCA9555_CMD.OUTPUT_1, 0xFF)
             writeRegister(RIGHT_SEGMENT, PCA9555_CMD.OUTPUT_0, 0xFF)
+            digitStates[ClipBitDisplay.RIGHT] = false
             return
         }
         writeRegister(LEFT_SEGMENT, PCA9555_CMD.OUTPUT_1, 0xFF)
         writeRegister(LEFT_SEGMENT, PCA9555_CMD.OUTPUT_0, 0xFF)
+        digitStates[ClipBitDisplay.LEFT] = false
     }
 
+    //% block="$display display value"
+    export function getDigitValue(display: ClipBitDisplay = ClipBitDisplay.LEFT): number {
+        return digitValues[display]
+    }
 
+    //% block="$display display is active"
+    export function getDigitState(display: ClipBitDisplay = ClipBitDisplay.LEFT): boolean {
+        return digitStates[display]
+    }
 
     control.runInBackground(() => {
         // Ensure we have up-to-date current values
