@@ -14,6 +14,9 @@ enum ClipBitDisplay { LEFT, RIGHT }
 //% blockNamespace=ClipBit
 enum ClipBitNumberBase { DECIMAL, HEXADECIMAL }
 
+//% blockNamespace=ClipBit
+enum ClipBitButtonState { PRESSED, RELEASED }
+
 /**
  * Events are functions that take a function (lambda) as the last argument
  */
@@ -116,14 +119,19 @@ namespace ClipBit {
 
     let pressHandlers: { [key: number]: () => void } = {};
     let releaseHandlers: { [key: number]: () => void } = {};
+    let eventHandlers: { (button: ClipBitButton, event: ClipBitButtonState): void; } [] = [];
 
     function buttonEvent(button: ClipBitButton, state: boolean) {
         if( state ) {
+            for (let i = 0; i < eventHandlers.length; i++)
+                eventHandlers[0](button, ClipBitButtonState.PRESSED)
             if (pressHandlers[button])
-                pressHandlers[button]();
+                pressHandlers[button]()
         } else {
+            for (let i = 0; i < eventHandlers.length; i++)
+                eventHandlers[0](button, ClipBitButtonState.RELEASED)
             if (releaseHandlers[button])
-                releaseHandlers[button]();
+                releaseHandlers[button]()
         }
     }
 
@@ -135,6 +143,13 @@ namespace ClipBit {
     //% block="on ClipBit button $button released"
     export function onClipBitButtonReleased(button: ClipBitButton = ClipBitButton.L1, handler: () => void) {
         releaseHandlers[button] = handler;
+    }
+
+    //% block="on ClipBit $button $event event"
+    //% draggableParameters
+    //% group="Advanced Functions"
+    export function onClipBitButtonEvent(handler: (button: ClipBitButton, event: ClipBitButtonState) => void) {
+        eventHandlers.push( handler );
     }
 
     //% block="set ClipBit LED $led to $on"
