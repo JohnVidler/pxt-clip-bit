@@ -1,7 +1,7 @@
 //% blockNamespace=ClipBit
 enum ClipBitButton {
     L1, L2, L3, L4, L5, L6,
-    R1, R2, R3, R4, R5, R6,
+    R6, R5, R4, R3, R2, R1,   // Flipped IDs to match the neopixel offsets for easier math :)
     C, D
 }
 
