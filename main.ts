@@ -322,7 +322,7 @@ namespace ClipBit {
             old_a = port_a
             old_b = port_b
 
-            pause( 50 )
+            pause( 10 )
         }
     })
 
