@@ -119,12 +119,16 @@ namespace ClipBit {
 
     let digitValues = [ 0, 0 ]
     let digitStates = [ false, false ]
+    let buttonStates = [false, false, false, false, false, false, false, false, false, false, false, false, false, false ]
+    let stickyStates = [false, false, false, false, false, false, false, false, false, false, false, false, false, false]
     let pressHandlers: { [key: number]: () => void } = {}
     let releaseHandlers: { [key: number]: () => void } = {}
     let eventHandlers: { (button: ClipBitButton, event: ClipBitButtonState): void; } [] = []
 
     function buttonEvent(button: ClipBitButton, state: boolean) {
+        buttonStates[button] = state
         if( state ) {
+            stickyStates[button] = true
             for (let i = 0; i < eventHandlers.length; i++)
                 eventHandlers[0](button, ClipBitButtonState.PRESSED)
             if (pressHandlers[button])
@@ -140,6 +144,26 @@ namespace ClipBit {
     //% block="ClipBit button $button"
     export function clipBitButton( button: ClipBitButton = ClipBitButton.L1 ): number {
         return button
+    }
+
+    /**
+     * Is this button currently being pressed down?
+     */
+    //% block="is $button pressed"
+    export function isPressed( button: ClipBitButton = ClipBitButton.L1 ): boolean {
+        return buttonStates[button]
+    }
+
+    /**
+     * Since we last checked, has this button been pressed?
+     */
+    //% block="was $button pressed"
+    export function wasPressed( button: ClipBitButton = ClipBitButton.L1 ): boolean {
+        if (stickyStates[button]) {
+            stickyStates[button] = false; // Reset on read :)
+            return true;
+        }
+        return false
     }
 
     //% block="ClipBit pixel $button"
