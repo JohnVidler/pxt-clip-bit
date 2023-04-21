@@ -4,7 +4,7 @@
     "description": "",
     "dependencies": {
         "core": "*",
-        "neopixel": "github:microsoft/pxt-neopixel#v0.7.3"
+        "neopixel": "github:microsoft/pxt-neopixel"
     },
     "files": [
         "README.md",

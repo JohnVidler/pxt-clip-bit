@@ -40,14 +40,14 @@ namespace ClipBit {
     }
 
     export enum ButtonMasks {
-        C = 0b00000001,
+        C  = 0b00000001,
         L1 = 0b00000100,
         L2 = 0b00001000,
         L3 = 0b00010000,
         L4 = 0b00100000,
         L5 = 0b01000000,
         L6 = 0b10000000,
-        D = 0b10000000,
+        D  = 0b10000000,
         R1 = 0b00100000,
         R2 = 0b00010000,
         R3 = 0b00001000,
@@ -111,46 +111,105 @@ namespace ClipBit {
     writeRegister(RIGHT_SEGMENT, PCA9555_CMD.OUTPUT_0, 0xFF);
     writeRegister(RIGHT_SEGMENT, PCA9555_CMD.OUTPUT_1, 0xFF);
 
-    // Will be our PWM pin for 7-seg brightness, but just go fullbright for now
-    /*led.enable( false );
-    pins.digitalWritePin(DigitalPin.P6, 0);
-    led.enable(false);*/
-    //pins.analogWritePin( AnalogPin.P6, 800 )
-
+    let rgbLEDs = neopixel.create(DigitalPin.P7, 12, NeoPixelMode.RGB)
     let digitValues = [ 0, 0 ]
     let digitStates = [ false, false ]
     let buttonStates = [false, false, false, false, false, false, false, false, false, false, false, false, false, false ]
     let stickyStates = [false, false, false, false, false, false, false, false, false, false, false, false, false, false]
     let pressHandlers: { [key: number]: () => void } = {}
     let releaseHandlers: { [key: number]: () => void } = {}
-    let eventHandlers: { (button: ClipBitButton, event: ClipBitButtonState): void; } [] = []
+    let eventHandlers: { (button: ClipBitButton): void; } [] = []
+
+    led.enable(false)
+    rgbLEDs.clear()
+    rgbLEDs.show()
+    led.enable(true)
 
     function buttonEvent(button: ClipBitButton, state: boolean) {
         buttonStates[button] = state
         if( state ) {
             stickyStates[button] = true
             for (let i = 0; i < eventHandlers.length; i++)
-                eventHandlers[0](button, ClipBitButtonState.PRESSED)
+                eventHandlers[0](button)
             if (pressHandlers[button])
                 pressHandlers[button]()
         } else {
-            for (let i = 0; i < eventHandlers.length; i++)
-                eventHandlers[0](button, ClipBitButtonState.RELEASED)
+            /*for (let i = 0; i < eventHandlers.length; i++)
+                eventHandlers[0](button)*/
             if (releaseHandlers[button])
                 releaseHandlers[button]()
         }
     }
 
-    //% block="ClipBit button $button"
-    export function clipBitButton( button: ClipBitButton = ClipBitButton.L1 ): number {
+    //% block="$button"
+    //% blockId="clipBitButtonId"
+    export function clipBitButton(button: ClipBitButton = ClipBitButton.L1): number {
         return button
+    }
+
+    /**
+     * Sets the pixel colour for each button on the Clip:Bit.
+     * 
+     * Note that while C and D are listed, the only colours those support are 'Red' and 'Black' which map
+     * to 'on' and 'off' respectively
+     */
+    //% block="set ClipBit pixel $button to $color"
+    //% button.shadow="clipBitButtonId"
+    export function setClipBitPixel(button: number = 0, color: NeoPixelColors = NeoPixelColors.Red ) {
+        if (button == ClipBitButton.C) {
+            if (color == NeoPixelColors.Red)
+                setClipBitLED(ClipBitLED.C, true)
+            else if (color == NeoPixelColors.Black)
+                setClipBitLED(ClipBitLED.C, false)
+            return
+        }
+        if (button == ClipBitButton.D) {
+            if (color == NeoPixelColors.Red)
+                setClipBitLED(ClipBitLED.D, true)
+            else if (color == NeoPixelColors.Black)
+                setClipBitLED(ClipBitLED.D, false)
+            return
+        }
+        led.enable(false)
+        rgbLEDs.setPixelColor( button, color )
+        rgbLEDs.show()
+        led.enable(true)
+    }
+
+    /**
+     * Sets the brightness of any pixels set after this point.
+     */
+    //% block="set ClipBit pixel brightness to $brightness"
+    export function setClipBitPixelBrightness( brightness : number = 0 ) {
+        led.enable(false)
+        rgbLEDs.setBrightness( brightness )
+        rgbLEDs.show()
+        led.enable(true)
+    }
+
+    //% block="clear ClipBit pixel $button"
+    //% button.shadow="clipBitButtonId"
+    export function clearClipBitPixel( button: number = 0 ) {
+        if (button == ClipBitButton.C) {
+            setClipBitLED(ClipBitLED.C, false)
+            return
+        }
+        if (button == ClipBitButton.D) {
+            setClipBitLED(ClipBitLED.D, false)
+            return
+        }
+        led.enable(false)
+        rgbLEDs.setPixelColor( button, NeoPixelColors.Black )
+        rgbLEDs.show()
+        led.enable(true)
     }
 
     /**
      * Is this button currently being pressed down?
      */
     //% block="is $button pressed"
-    export function isPressed( button: ClipBitButton = ClipBitButton.L1 ): boolean {
+    //% button.shadow="clipBitButtonId"
+    export function isPressed( button: number = 0 ): boolean {
         return buttonStates[button]
     }
 
@@ -158,19 +217,13 @@ namespace ClipBit {
      * Since we last checked, has this button been pressed?
      */
     //% block="was $button pressed"
-    export function wasPressed( button: ClipBitButton = ClipBitButton.L1 ): boolean {
+    //% button.shadow="clipBitButtonId"
+    export function wasPressed( button: number = 0 ): boolean {
         if (stickyStates[button]) {
             stickyStates[button] = false; // Reset on read :)
             return true;
         }
         return false
-    }
-
-    //% block="ClipBit pixel $button"
-    export function clipBitPixel( button: ClipBitButton = ClipBitButton.L1 ): number {
-        if( button < 6 )
-            return button
-        return 11 - (button-6);
     }
 
     //% block="on ClipBit button $button pressed"
@@ -183,9 +236,14 @@ namespace ClipBit {
         releaseHandlers[button] = handler;
     }
 
-    //% block="on ClipBit $button $event event"
-    //% draggableParameters
-    export function onClipBitButtonEvent(handler: (button: ClipBitButton, event: ClipBitButtonState) => void) {
+    /**
+     * Code here will be run whenever any button is pressed
+     * 
+     * @param button This is the button the event came from
+     */
+    //% block="on ClipBit button $button pressed"
+    //% draggableParameters="reporter"
+    export function onClipBitButtonEvent(handler: (button: number) => void) {
         eventHandlers.push( handler );
     }
 
