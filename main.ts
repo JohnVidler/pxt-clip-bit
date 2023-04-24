@@ -17,9 +17,6 @@ enum ClipBitNumberBase { DECIMAL, HEXADECIMAL }
 //% blockNamespace=ClipBit
 enum ClipBitButtonState { PRESSED, RELEASED }
 
-/**
- * Events are functions that take a function (lambda) as the last argument
- */
 //% color="#BC986A" icon="\uf0ea"
 namespace ClipBit {
 
