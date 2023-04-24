@@ -201,6 +201,14 @@ namespace ClipBit {
         led.enable(true)
     }
 
+    //% block="turn off all ClipBit pixels"
+    export function clearAllClipBitPixels() {
+        led.enable(false)
+        rgbLEDs.clear()
+        rgbLEDs.show()
+        led.enable(true)
+    }
+
     /**
      * Is this button currently being pressed down?
      */
