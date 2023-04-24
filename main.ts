@@ -150,9 +150,9 @@ namespace ClipBit {
      * Note that while C and D are listed, the only colours those support are 'Red' and 'Black' which map
      * to 'on' and 'off' respectively
      */
-    //% block="set ClipBit pixel $button to $color"
+    //% block="set ClipBit pixel $button to $color=neopixel_colors"
     //% button.shadow="clipBitButtonId"
-    export function setClipBitPixel(button: number = 0, color: NeoPixelColors = NeoPixelColors.Red ) {
+    export function setClipBitPixel(button: number = 0, color: number ) {
         if (button == ClipBitButton.C) {
             if (color == NeoPixelColors.Red)
                 setClipBitLED(ClipBitLED.C, true)
