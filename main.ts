@@ -90,23 +90,20 @@ namespace ClipBit {
         return pins.i2cReadNumber(address, NumberFormat.UInt8BE, false)
     }
 
-    function configureBoard() {
-        writeRegister(SYSTEM_IO, PCA9555_CMD.CONFIG_0, 0b11111101)
-        writeRegister(SYSTEM_IO, PCA9555_CMD.CONFIG_1, 0b10111111)
+    writeRegister(SYSTEM_IO, PCA9555_CMD.CONFIG_0, 0b11111101)
+    writeRegister(SYSTEM_IO, PCA9555_CMD.CONFIG_1, 0b10111111)
 
-        writeRegister(LEFT_SEGMENT, PCA9555_CMD.CONFIG_0, 0x00)
-        writeRegister(LEFT_SEGMENT, PCA9555_CMD.CONFIG_1, 0x00)
-
-        writeRegister(RIGHT_SEGMENT, PCA9555_CMD.CONFIG_0, 0x00)
-        writeRegister(RIGHT_SEGMENT, PCA9555_CMD.CONFIG_1, 0x00)
-    }
-
-    configureBoard()
     writeRegister(SYSTEM_IO, PCA9555_CMD.OUTPUT_0, 0b00000000)
     writeRegister(SYSTEM_IO, PCA9555_CMD.OUTPUT_1, 0b00000000)
 
+    writeRegister(LEFT_SEGMENT, PCA9555_CMD.CONFIG_0, 0x00)
+    writeRegister(LEFT_SEGMENT, PCA9555_CMD.CONFIG_1, 0x00)
+
     writeRegister(LEFT_SEGMENT, PCA9555_CMD.OUTPUT_0, 0xFF);
     writeRegister(LEFT_SEGMENT, PCA9555_CMD.OUTPUT_1, 0xFF);
+
+    writeRegister(RIGHT_SEGMENT, PCA9555_CMD.CONFIG_0, 0x00)
+    writeRegister(RIGHT_SEGMENT, PCA9555_CMD.CONFIG_1, 0x00)
 
     writeRegister(RIGHT_SEGMENT, PCA9555_CMD.OUTPUT_0, 0xFF);
     writeRegister(RIGHT_SEGMENT, PCA9555_CMD.OUTPUT_1, 0xFF);
@@ -344,15 +341,7 @@ namespace ClipBit {
         return digitStates[display]
     }
 
-    let loopCount = 0
     control.runInBackground(() => {
-
-        loopCount++
-        if( loopCount > 100 ) { // About 5 seconds
-            loopCount = 0
-            configureBoard()
-        }
-
         // Ensure we have up-to-date current values
         let old_a = readRegister(SYSTEM_IO, PCA9555_CMD.INPUT_0)
         let old_b = readRegister(SYSTEM_IO, PCA9555_CMD.INPUT_1)
