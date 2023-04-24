@@ -127,7 +127,7 @@ namespace ClipBit {
         if( state ) {
             stickyStates[button] = true
             for (let i = 0; i < eventHandlers.length; i++)
-                eventHandlers[0](button)
+                eventHandlers[i](button)
             if (pressHandlers[button])
                 pressHandlers[button]()
         } else {
