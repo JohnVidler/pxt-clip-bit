@@ -201,6 +201,9 @@ namespace ClipBit {
         led.enable(true)
     }
 
+    /**
+     * Clears all color data for the pixels, and turns them off
+     */
     //% block="turn off all ClipBit pixels"
     export function clearAllClipBitPixels() {
         led.enable(false)
