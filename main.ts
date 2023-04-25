@@ -1,8 +1,9 @@
 //% blockNamespace=ClipBit
 enum ClipBitButton {
-    L1, L2, L3, L4, L5, L6,
-    R6, R5, R4, R3, R2, R1,   // Flipped IDs to match the neopixel offsets for easier math :)
-    C, D
+    L1=0, L2=1, L3=2, L4=3, L5=4, L6=5,
+    R1=11, R2=10, R3=9, R4=8, R5=7, R6=6,
+    //R6, R5, R4, R3, R2, R1,   // Flipped IDs to match the neopixel offsets for easier math :)
+    C=12, D=13
 }
 
 //% blockNamespace=ClipBit
@@ -17,7 +18,7 @@ enum ClipBitNumberBase { DECIMAL, HEXADECIMAL }
 //% blockNamespace=ClipBit
 enum ClipBitButtonState { PRESSED, RELEASED }
 
-//% color="#BC986A" icon="\uf0ea"
+//% color="#BC986A" icon="\uf0ea" groups=["Pixels and LEDs","Buttons", "Digits"]
 namespace ClipBit {
 
     const PCA9555_BASE_ADDRESS = 0x20
@@ -109,13 +110,14 @@ namespace ClipBit {
     writeRegister(RIGHT_SEGMENT, PCA9555_CMD.OUTPUT_1, 0xFF);
 
     let rgbLEDs = neopixel.create(DigitalPin.P7, 12, NeoPixelMode.RGB)
-    let digitValues = [ 0, 0 ]
-    let digitStates = [ false, false ]
-    let buttonStates = [false, false, false, false, false, false, false, false, false, false, false, false, false, false ]
+    let digitValues = [0, 0]
+    let digitStates = [false, false]
+    let buttonStates = [false, false, false, false, false, false, false, false, false, false, false, false, false, false]
     let stickyStates = [false, false, false, false, false, false, false, false, false, false, false, false, false, false]
+    let aliasTable: { [key: number]: string } = {}
     let pressHandlers: { [key: number]: () => void } = {}
     let releaseHandlers: { [key: number]: () => void } = {}
-    let eventHandlers: { (button: ClipBitButton): void; } [] = []
+    let eventHandlers: { (button: ClipBitButton, alias: string): void; } [] = []
 
     led.enable(false)
     rgbLEDs.clear()
@@ -127,7 +129,7 @@ namespace ClipBit {
         if( state ) {
             stickyStates[button] = true
             for (let i = 0; i < eventHandlers.length; i++)
-                eventHandlers[i](button)
+                eventHandlers[i](button, getButtonAlias(button))
             if (pressHandlers[button])
                 pressHandlers[button]()
         } else {
@@ -138,8 +140,32 @@ namespace ClipBit {
         }
     }
 
+    //% block="set ClipBit button $button name to $name"
+    //% button.shadow="clipBitButtonId"
+    //% name.defl="Butterfly"
+    //% group="Buttons" advanced="true"
+    export function setButtonName(button: number = ClipBitButton.L1, name: string ) {
+        aliasTable[button] = name
+    }
+
+    //% block="get ClipBit button name for $button"
+    //% button.shadow="clipBitButtonId"
+    //% group="Buttons" advanced="true"
+    export function getButtonName(button: number = ClipBitButton.L1) : string {
+        return getButtonAlias( button )
+    }
+
+    function getButtonAlias( button: number ) : string {
+        if (aliasTable[button])
+            return aliasTable[button]
+        if( button < 0 || button > 13 )
+            throw "Invalid button number, must be between 0 and 13"
+        return ["L1", "L2", "L3", "L4", "L5", "L6", "R6", "R5", "R4", "R3", "R2", "R1", "C", "D" ][button]
+    }
+
     //% block="$button"
     //% blockId="clipBitButtonId"
+    //% group="Buttons" advanced="true"
     export function clipBitButton(button: ClipBitButton = ClipBitButton.L1): number {
         return button
     }
@@ -152,6 +178,7 @@ namespace ClipBit {
      */
     //% block="set ClipBit pixel $button to $color=neopixel_colors"
     //% button.shadow="clipBitButtonId"
+    //% group="Pixels and LEDs"
     export function setClipBitPixel(button: number = 0, color: number ) {
         if (button == ClipBitButton.C) {
             if (color == NeoPixelColors.Red)
@@ -177,6 +204,7 @@ namespace ClipBit {
      * Sets the brightness of any pixels set after this point.
      */
     //% block="set ClipBit pixel brightness to $brightness"
+    //% group="Pixels and LEDs"
     export function setClipBitPixelBrightness( brightness : number = 0 ) {
         led.enable(false)
         rgbLEDs.setBrightness( brightness )
@@ -186,6 +214,7 @@ namespace ClipBit {
 
     //% block="clear ClipBit pixel $button"
     //% button.shadow="clipBitButtonId"
+    //% group="Pixels and LEDs"
     export function clearClipBitPixel( button: number = 0 ) {
         if (button == ClipBitButton.C) {
             setClipBitLED(ClipBitLED.C, false)
@@ -205,6 +234,7 @@ namespace ClipBit {
      * Clears all color data for the pixels, and turns them off
      */
     //% block="turn off all ClipBit pixels"
+    //% group="Pixels and LEDs"
     export function clearAllClipBitPixels() {
         led.enable(false)
         rgbLEDs.clear()
@@ -217,6 +247,7 @@ namespace ClipBit {
      */
     //% block="is $button pressed"
     //% button.shadow="clipBitButtonId"
+    //% group="Buttons"
     export function isPressed( button: number = 0 ): boolean {
         return buttonStates[button]
     }
@@ -226,6 +257,7 @@ namespace ClipBit {
      */
     //% block="was $button pressed"
     //% button.shadow="clipBitButtonId"
+    //% group="Buttons" advanced="true"
     export function wasPressed( button: number = 0 ): boolean {
         if (stickyStates[button]) {
             stickyStates[button] = false; // Reset on read :)
@@ -235,11 +267,13 @@ namespace ClipBit {
     }
 
     //% block="on ClipBit button $button pressed"
+    //% group="Buttons"
     export function onClipBitButtonPressed(button: ClipBitButton = ClipBitButton.L1, handler: () => void) {
         pressHandlers[button] = handler;
     }
 
     //% block="on ClipBit button $button released"
+    //% group="Buttons"
     export function onClipBitButtonReleased(button: ClipBitButton = ClipBitButton.L1, handler: () => void) {
         releaseHandlers[button] = handler;
     }
@@ -248,15 +282,18 @@ namespace ClipBit {
      * Code here will be run whenever any button is pressed
      * 
      * @param button This is the button the event came from
+     * @param name The button name
      */
     //% block="on ClipBit button $button pressed"
     //% draggableParameters="reporter"
-    export function onClipBitButtonEvent(handler: (button: number) => void) {
+    //% group="Buttons"
+    export function onClipBitButtonEvent(handler: (button: number, name: string) => void) {
         eventHandlers.push( handler );
     }
 
     //% block="set ClipBit LED $led to $on"
     //% on.shadow="toggleOnOff"
+    //% group="Pixels and LEDs"
     export function setClipBitLED(led: ClipBitLED = ClipBitLED.C, on: boolean = true) {
         let port = PCA9555_CMD.OUTPUT_0
         let mask = 0b00000010
@@ -272,6 +309,7 @@ namespace ClipBit {
     }
 
     //% block="set ClipBit $display display to $value || as $style"
+    //% group="Digits"
     export function setDigitDisplay( display: ClipBitDisplay, value: number, style: ClipBitNumberBase = ClipBitNumberBase.DECIMAL ) {
         if( style == ClipBitNumberBase.DECIMAL ) {
             value = Math.abs(value % 100)
@@ -319,6 +357,7 @@ namespace ClipBit {
     }
 
     //% block="clear the $display ClipBit display"
+    //% group="Digits"
     export function clearDigitDisplay( display : ClipBitDisplay ) {
         if( display == ClipBitDisplay.RIGHT ) {
             writeRegister(RIGHT_SEGMENT, PCA9555_CMD.OUTPUT_1, 0xFF)
@@ -332,11 +371,13 @@ namespace ClipBit {
     }
 
     //% block="$display display value"
+    //% group="Digits" advanced="true"
     export function getDigitValue(display: ClipBitDisplay = ClipBitDisplay.LEFT): number {
         return digitValues[display]
     }
 
     //% block="$display display is active"
+    //% group="Digits" advanced="true"
     export function getDigitState(display: ClipBitDisplay = ClipBitDisplay.LEFT): boolean {
         return digitStates[display]
     }
