@@ -140,6 +140,16 @@ namespace ClipBit {
         }
     }
 
+    /**
+     * This variable returns the internal reference to the NeoPixel strip on the
+     * Clip:Bit, so it can be used with the NeoPixel extension.
+     */
+    //% block="the ClipBit Pixel Strip"
+    //% group="Pixels and LEDs" advanced="true"
+    export function clipBitPixels() : neopixel.Strip {
+        return rgbLEDs
+    }
+
     //% block="set ClipBit button $button name to $name"
     //% button.shadow="clipBitButtonId"
     //% name.defl="Butterfly"
