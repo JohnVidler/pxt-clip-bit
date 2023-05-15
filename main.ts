@@ -82,6 +82,106 @@ namespace ClipBit {
         0b11110111  // .
     ]
 
+
+    // Note that the lookup on this _start_ at 32 (ascii space => ' '), not zero!
+    const LEDASCII = [
+        0b11111111,
+        0b01010111,
+        0b10101111,
+        0b11111111,
+        0b11111111,
+        0b11111111,
+        0b11111111,
+        0b10011111,
+        0b10011100,
+        0b11001001,
+        0b00101010,
+        0b11111111,
+        0b11111001,
+        0b01111111,
+        0b11110111,
+        0b01101110,
+        0b10001000,
+        0b10111110,
+        0b01001100,
+        0b01001001,
+        0b00101011,
+        0b00011001,
+        0b00011000,
+        0b11001011,
+        0b00001000,
+        0b00001011,
+        0b00001010,
+        0b00111000,
+        0b01111100,
+        0b01101000,
+        0b00011100,
+        0b00011110,
+        0b11111111,
+        0b10111110,
+        0b10111110,
+        0b10111110,
+        0b10111110,
+        0b10111110,
+        0b10111110,
+        0b11111111,
+        0b00101010,
+        0b11101011,
+        0b11101001,
+        0b11111111,
+        0b10111100,
+        0b11111111,
+        0b11111111,
+        0b01111000,
+        0b00001110,
+        0b01110000,
+        0b01111110,
+        0b00011001,
+        0b10011110,
+        0b11111000,
+        0b11111111,
+        0b11111111,
+        0b11111111,
+        0b11111111,
+        0b11111111,
+        0b10011100,
+        0b00111011,
+        0b11001001,
+        0b10001111,
+        0b11111101,
+        0b11001111,
+        0b00001010,
+        0b00111000,
+        0b01111100,
+        0b01101000,
+        0b00011100,
+        0b00011110,
+        0b11111111,
+        0b00101010,
+        0b11101011,
+        0b11101001,
+        0b11111111,
+        0b10111100,
+        0b11111111,
+        0b11111111,
+        0b01111000,
+        0b00001110,
+        0b01110000,
+        0b01111110,
+        0b00011001,
+        0b10011110,
+        0b11111000,
+        0b11111111,
+        0b11111111,
+        0b11111111,
+        0b11111111,
+        0b11111111,
+        0b11111111,
+        0b01011101,
+        0b11111111,
+        0b11111111
+    ]
+
     function writeRegister(address: number, register: number, value: number) {
         pins.i2cWriteBuffer(address, Buffer.fromArray([register, value]), false)
     }
@@ -390,6 +490,29 @@ namespace ClipBit {
     //% group="Digits" advanced="true"
     export function getDigitState(display: ClipBitDisplay = ClipBitDisplay.LEFT): boolean {
         return digitStates[display]
+    }
+
+    //% block="set ClipBit $display display to the text $value"
+    //% group="Digits"
+    export function setDigitText(display: ClipBitDisplay, value: string) {
+        if( value.length < 2 )
+            value = ' ' + value;
+        
+        let upper = LEDASCII[(value.charCodeAt(0) & 255) - 32] || 0b11111111 // Default to 'all off'
+        let lower = LEDASCII[(value.charCodeAt(1) & 255) - 32] || 0b11111111
+
+        if( display == ClipBitDisplay.LEFT ) {
+            writeRegister(LEFT_SEGMENT, PCA9555_CMD.OUTPUT_0, upper)
+            writeRegister(LEFT_SEGMENT, PCA9555_CMD.OUTPUT_1, lower)
+            digitValues[ClipBitDisplay.LEFT] = 0
+            digitStates[ClipBitDisplay.LEFT] = true
+            return;
+        }
+
+        writeRegister(RIGHT_SEGMENT, PCA9555_CMD.OUTPUT_0, lower)
+        writeRegister(RIGHT_SEGMENT, PCA9555_CMD.OUTPUT_1, upper)
+        digitValues[ClipBitDisplay.RIGHT] = 0
+        digitStates[ClipBitDisplay.RIGHT] = true
     }
 
     control.runInBackground(() => {
