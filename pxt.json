@@ -8,6 +8,7 @@
     },
     "files": [
         "shims.d.ts",
+        "enums.d.ts",
         "README.md",
         "main.blocks",
         "main.ts",
