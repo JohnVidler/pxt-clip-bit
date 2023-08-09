@@ -5,6 +5,7 @@ namespace ClipBit {
 
     uint8_t data[129];
 
+    //%
     void sendLogViaSerial()
     {
         int length = uBit.log.getDataLength(DataFormat::CSV);
