@@ -7,6 +7,7 @@
         "neopixel": "github:microsoft/pxt-neopixel"
     },
     "files": [
+        "shims.d.ts",
         "README.md",
         "main.blocks",
         "main.ts",
