@@ -515,6 +515,11 @@ namespace ClipBit {
         digitStates[ClipBitDisplay.RIGHT] = true
     }
 
+    //% shim=ClipBit::sendLogViaSerial
+    export function sendLogViaSerial() {
+        
+    }
+
     control.runInBackground(() => {
         // Ensure we have up-to-date current values
         let old_a = readRegister(SYSTEM_IO, PCA9555_CMD.INPUT_0)
