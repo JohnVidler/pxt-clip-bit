@@ -24,6 +24,6 @@ namespace ClipBit {
             length = length - l;
             i = i + l;
         }
-    }
 #endif
+    }
 }
