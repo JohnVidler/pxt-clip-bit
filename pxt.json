@@ -9,7 +9,9 @@
     "files": [
         "README.md",
         "main.blocks",
-        "main.ts"
+        "main.ts",
+        "ClipBit.h",
+        "ClipBit.cpp"
     ],
     "testFiles": [
         "test.ts"
