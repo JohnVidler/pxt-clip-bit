@@ -8,6 +8,7 @@ namespace ClipBit {
     //%
     void sendLogViaSerial()
     {
+#if MICROBIT_CODAL
         int length = uBit.log.getDataLength(DataFormat::CSV);
         int blockSize = 128;
         int i = 0;
@@ -24,4 +25,5 @@ namespace ClipBit {
             i = i + l;
         }
     }
+#endif
 }
