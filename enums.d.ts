@@ -1,10 +1,5 @@
 // Auto-generated. Do not edit.
+declare namespace ClipBit {
+}
 
-
-    /** Definitions for C++ level ClipBit operations go here */
-
-    declare namespace ClipBit {
-    }
-    
-    // Auto-generated. Do not edit. Really.
-    
+// Auto-generated. Do not edit. Really.
