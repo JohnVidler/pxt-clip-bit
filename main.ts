@@ -21,6 +21,7 @@ enum ClipBitButtonState { PRESSED, RELEASED }
 //% color="#BC986A" icon="\uf0ea" groups=["Pixels and LEDs","Buttons", "Digits"]
 namespace ClipBit {
 
+    const M24C08_BASE_ADDRESS = 0x50
     const PCA9555_BASE_ADDRESS = 0x20
     const SYSTEM_IO = PCA9555_BASE_ADDRESS | 0b0010
     const LEFT_SEGMENT = PCA9555_BASE_ADDRESS | 0b0000
@@ -182,32 +183,59 @@ namespace ClipBit {
         0b11111111
     ]
 
+    let I2C_MODE = 0
+
     function writeRegister(address: number, register: number, value: number) {
+        if( I2C_MODE != 0 )
+            return
         pins.i2cWriteBuffer(address, Buffer.fromArray([register, value]), false)
     }
 
     function readRegister(address: number, register: number) {
+        if (I2C_MODE != 0)
+            return 0
         pins.i2cWriteNumber(address, register, NumberFormat.UInt8BE, false)
         return pins.i2cReadNumber(address, NumberFormat.UInt8BE, false)
     }
 
-    writeRegister(SYSTEM_IO, PCA9555_CMD.CONFIG_0, 0b11111101)
-    writeRegister(SYSTEM_IO, PCA9555_CMD.CONFIG_1, 0b10111111)
+    function readEEPROM(address: number): number {
+        if (I2C_MODE != 1)
+            return 0
+        pins.i2cWriteNumber(M24C08_BASE_ADDRESS, address, NumberFormat.UInt8BE, true)
+        return pins.i2cReadNumber(M24C08_BASE_ADDRESS, NumberFormat.UInt8BE, false)
+    }
 
-    writeRegister(SYSTEM_IO, PCA9555_CMD.OUTPUT_0, 0b00000000)
-    writeRegister(SYSTEM_IO, PCA9555_CMD.OUTPUT_1, 0b00000000)
+    function writeEEPROM(address: number, value: number) {
+        if (I2C_MODE != 1)
+            return
+        pins.i2cWriteBuffer(M24C08_BASE_ADDRESS, Buffer.fromArray([address, value]), false)
+        basic.pause(1)
+    }
 
-    writeRegister(LEFT_SEGMENT, PCA9555_CMD.CONFIG_0, 0x00)
-    writeRegister(LEFT_SEGMENT, PCA9555_CMD.CONFIG_1, 0x00)
+    function writeEEPROMString(address: number, data: string): number {
+        if (I2C_MODE != 1)
+            return 0
+        for (let i = 0; i < data.length; i++)
+            writeEEPROM(address + i, data.charCodeAt(i))
+        writeEEPROM(address + data.length, 0)
+        return data.length + 1;
+    }
 
-    writeRegister(LEFT_SEGMENT, PCA9555_CMD.OUTPUT_0, 0xFF);
-    writeRegister(LEFT_SEGMENT, PCA9555_CMD.OUTPUT_1, 0xFF);
+    function readEEPROMString( address: number ) : string {
+        if (I2C_MODE != 1)
+            return ""
+        
+        let buffer = "";
+        let offset = address;
+        while( address < 1024 ) {
+            let v = readEEPROM( address++ )
+            if( v == 0 )
+                break
+            buffer += String.fromCharCode(v)
+        }
 
-    writeRegister(RIGHT_SEGMENT, PCA9555_CMD.CONFIG_0, 0x00)
-    writeRegister(RIGHT_SEGMENT, PCA9555_CMD.CONFIG_1, 0x00)
-
-    writeRegister(RIGHT_SEGMENT, PCA9555_CMD.OUTPUT_0, 0xFF);
-    writeRegister(RIGHT_SEGMENT, PCA9555_CMD.OUTPUT_1, 0xFF);
+        return buffer;
+    }
 
     let rgbLEDs = neopixel.create(DigitalPin.P7, 12, NeoPixelMode.RGB)
     let digitValues = [0, 0]
@@ -223,6 +251,13 @@ namespace ClipBit {
     rgbLEDs.clear()
     rgbLEDs.show()
     led.enable(true)
+
+    export function getBoardString() : string {
+        I2C_MODE = 1 // EEPROM mode!
+        let boardString = readEEPROMString(0);
+        I2C_MODE = 0 // Buttons mode!
+        return boardString
+    }
 
     function buttonEvent(button: ClipBitButton, state: boolean) {
         buttonStates[button] = state
@@ -517,57 +552,98 @@ namespace ClipBit {
 
     //% shim=ClipBit::sendLogViaSerial
     export function sendLogViaSerial() {
-        
+        //null, C++ only function
     }
 
     control.runInBackground(() => {
+        let loopCount = 1000
+        let boardVersion = "Unknown"
+
         // Ensure we have up-to-date current values
         let old_a = readRegister(SYSTEM_IO, PCA9555_CMD.INPUT_0)
         let old_b = readRegister(SYSTEM_IO, PCA9555_CMD.INPUT_1)
 
         while (true) {
-            // Read the new values
-            let port_a = readRegister(SYSTEM_IO, PCA9555_CMD.INPUT_0)
-            let port_b = readRegister(SYSTEM_IO, PCA9555_CMD.INPUT_1)
+            // Re-scan every second-ish to account for hot-plug events
+            if( loopCount > 10 ) {
+                loopCount = 0
+                let newVersion = getBoardString();
 
-            if (port_a != old_a) {
-                if ((port_a & ButtonMasks.C) != (old_a & ButtonMasks.C))
-                    buttonEvent(ClipBitButton.C, (old_a & ButtonMasks.C) == ButtonMasks.C)
-                if ((port_a & ButtonMasks.L1) != (old_a & ButtonMasks.L1))
-                    buttonEvent(ClipBitButton.L1, (old_a & ButtonMasks.L1) == ButtonMasks.L1)
-                if ((port_a & ButtonMasks.L2) != (old_a & ButtonMasks.L2))
-                    buttonEvent(ClipBitButton.L2, (old_a & ButtonMasks.L2) == ButtonMasks.L2)
-                if ((port_a & ButtonMasks.L3) != (old_a & ButtonMasks.L3))
-                    buttonEvent(ClipBitButton.L3, (old_a & ButtonMasks.L3) == ButtonMasks.L3)
-                if ((port_a & ButtonMasks.L4) != (old_a & ButtonMasks.L4))
-                    buttonEvent(ClipBitButton.L4, (old_a & ButtonMasks.L4) == ButtonMasks.L4)
-                if ((port_a & ButtonMasks.L5) != (old_a & ButtonMasks.L5))
-                    buttonEvent(ClipBitButton.L5, (old_a & ButtonMasks.L5) == ButtonMasks.L5)
-                if ((port_a & ButtonMasks.L6) != (old_a & ButtonMasks.L6))
-                    buttonEvent(ClipBitButton.L6, (old_a & ButtonMasks.L6) == ButtonMasks.L6)
+                // Catch hot-plug events, or cases where we're knocked in situ
+                if( newVersion != boardVersion ) {
+                    boardVersion = newVersion
+
+                    // r3.0+ features (basic IO)
+                    writeRegister(SYSTEM_IO, PCA9555_CMD.CONFIG_0, 0b11111101)
+                    writeRegister(SYSTEM_IO, PCA9555_CMD.CONFIG_1, 0b10111111)
+
+                    writeRegister(SYSTEM_IO, PCA9555_CMD.OUTPUT_0, 0b00000000)
+                    writeRegister(SYSTEM_IO, PCA9555_CMD.OUTPUT_1, 0b00000000)
+
+                    writeRegister(LEFT_SEGMENT, PCA9555_CMD.CONFIG_0, 0x00)
+                    writeRegister(LEFT_SEGMENT, PCA9555_CMD.CONFIG_1, 0x00)
+
+                    writeRegister(LEFT_SEGMENT, PCA9555_CMD.OUTPUT_0, 0xFF);
+                    writeRegister(LEFT_SEGMENT, PCA9555_CMD.OUTPUT_1, 0xFF);
+
+                    writeRegister(RIGHT_SEGMENT, PCA9555_CMD.CONFIG_0, 0x00)
+                    writeRegister(RIGHT_SEGMENT, PCA9555_CMD.CONFIG_1, 0x00)
+
+                    writeRegister(RIGHT_SEGMENT, PCA9555_CMD.OUTPUT_0, 0xFF);
+                    writeRegister(RIGHT_SEGMENT, PCA9555_CMD.OUTPUT_1, 0xFF);
+
+                    // Here is where we would enable r3.5 version features (GPS!)
+                    if (newVersion == "clip:bit/r3.5") {
+                        // New board code here :)
+                    }
+                }
             }
-            if (port_b != old_b) {
-                if ((port_b & ButtonMasks.D) != (old_b & ButtonMasks.D))
-                    buttonEvent(ClipBitButton.D, (old_b & ButtonMasks.D) == ButtonMasks.D)
-                if ((port_b & ButtonMasks.R1) != (old_b & ButtonMasks.R1))
-                    buttonEvent(ClipBitButton.R1, (old_b & ButtonMasks.R1) == ButtonMasks.R1)
-                if ((port_b & ButtonMasks.R2) != (old_b & ButtonMasks.R2))
-                    buttonEvent(ClipBitButton.R2, (old_b & ButtonMasks.R2) == ButtonMasks.R2)
-                if ((port_b & ButtonMasks.R3) != (old_b & ButtonMasks.R3))
-                    buttonEvent(ClipBitButton.R3, (old_b & ButtonMasks.R3) == ButtonMasks.R3)
-                if ((port_b & ButtonMasks.R4) != (old_b & ButtonMasks.R4))
-                    buttonEvent(ClipBitButton.R4, (old_b & ButtonMasks.R4) == ButtonMasks.R4)
-                if ((port_b & ButtonMasks.R5) != (old_b & ButtonMasks.R5))
-                    buttonEvent(ClipBitButton.R5, (old_b & ButtonMasks.R5) == ButtonMasks.R5)
-                if ((port_b & ButtonMasks.R6) != (old_b & ButtonMasks.R6))
-                    buttonEvent(ClipBitButton.R6, (old_b & ButtonMasks.R6) == ButtonMasks.R6)
+
+            if( I2C_MODE == 0 ) {
+                // Read the new values
+                let port_a = readRegister(SYSTEM_IO, PCA9555_CMD.INPUT_0)
+                let port_b = readRegister(SYSTEM_IO, PCA9555_CMD.INPUT_1)
+
+                if (port_a != old_a) {
+                    if ((port_a & ButtonMasks.C) != (old_a & ButtonMasks.C))
+                        buttonEvent(ClipBitButton.C, (old_a & ButtonMasks.C) == ButtonMasks.C)
+                    if ((port_a & ButtonMasks.L1) != (old_a & ButtonMasks.L1))
+                        buttonEvent(ClipBitButton.L1, (old_a & ButtonMasks.L1) == ButtonMasks.L1)
+                    if ((port_a & ButtonMasks.L2) != (old_a & ButtonMasks.L2))
+                        buttonEvent(ClipBitButton.L2, (old_a & ButtonMasks.L2) == ButtonMasks.L2)
+                    if ((port_a & ButtonMasks.L3) != (old_a & ButtonMasks.L3))
+                        buttonEvent(ClipBitButton.L3, (old_a & ButtonMasks.L3) == ButtonMasks.L3)
+                    if ((port_a & ButtonMasks.L4) != (old_a & ButtonMasks.L4))
+                        buttonEvent(ClipBitButton.L4, (old_a & ButtonMasks.L4) == ButtonMasks.L4)
+                    if ((port_a & ButtonMasks.L5) != (old_a & ButtonMasks.L5))
+                        buttonEvent(ClipBitButton.L5, (old_a & ButtonMasks.L5) == ButtonMasks.L5)
+                    if ((port_a & ButtonMasks.L6) != (old_a & ButtonMasks.L6))
+                        buttonEvent(ClipBitButton.L6, (old_a & ButtonMasks.L6) == ButtonMasks.L6)
+                }
+                if (port_b != old_b) {
+                    if ((port_b & ButtonMasks.D) != (old_b & ButtonMasks.D))
+                        buttonEvent(ClipBitButton.D, (old_b & ButtonMasks.D) == ButtonMasks.D)
+                    if ((port_b & ButtonMasks.R1) != (old_b & ButtonMasks.R1))
+                        buttonEvent(ClipBitButton.R1, (old_b & ButtonMasks.R1) == ButtonMasks.R1)
+                    if ((port_b & ButtonMasks.R2) != (old_b & ButtonMasks.R2))
+                        buttonEvent(ClipBitButton.R2, (old_b & ButtonMasks.R2) == ButtonMasks.R2)
+                    if ((port_b & ButtonMasks.R3) != (old_b & ButtonMasks.R3))
+                        buttonEvent(ClipBitButton.R3, (old_b & ButtonMasks.R3) == ButtonMasks.R3)
+                    if ((port_b & ButtonMasks.R4) != (old_b & ButtonMasks.R4))
+                        buttonEvent(ClipBitButton.R4, (old_b & ButtonMasks.R4) == ButtonMasks.R4)
+                    if ((port_b & ButtonMasks.R5) != (old_b & ButtonMasks.R5))
+                        buttonEvent(ClipBitButton.R5, (old_b & ButtonMasks.R5) == ButtonMasks.R5)
+                    if ((port_b & ButtonMasks.R6) != (old_b & ButtonMasks.R6))
+                        buttonEvent(ClipBitButton.R6, (old_b & ButtonMasks.R6) == ButtonMasks.R6)
+                }
+                
+                // Sync with the old values
+                old_a = port_a
+                old_b = port_b
             }
-            
-            // Sync with the old values
-            old_a = port_a
-            old_b = port_b
 
             pause( 50 )
+            loopCount++
         }
     })
 
