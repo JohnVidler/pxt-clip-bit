@@ -12,6 +12,8 @@ This repository can be added as an **extension** in MakeCode.
 * click on **Extensions** under the gearwheel menu
 * search for **https://github.com/johnvidler/pxt-clip-bit** and import
 
+**OR** simply click [this link and make a copy of the example project to have everything automatically imported](https://makecode.microbit.org/_CfaTvuAoa8mM) for you!
+
 ## Blocks
 
 ### Pixels and LEDs
