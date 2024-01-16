@@ -252,6 +252,12 @@ namespace ClipBit {
     rgbLEDs.show()
     led.enable(true)
 
+    /**
+     * Returns the board identification string for the connected clip:bit (if present) or other
+     * compatible device.
+     * 
+     * This reads from the M24C08 or compatible I2C EEPROM to get the board identification.
+     */
     export function getBoardString() : string {
         I2C_MODE = 1 // EEPROM mode!
         let boardString = readEEPROMString(0);
@@ -285,6 +291,11 @@ namespace ClipBit {
         return rgbLEDs
     }
 
+    /**
+     * Set the button name for the selected button.
+     * 
+     * This will be returned in the general button handler, and in calls to 'getButtonName'
+     */
     //% block="set ClipBit button $button name to $name"
     //% button.shadow="clipBitButtonId"
     //% name.defl="Butterfly"
@@ -293,6 +304,9 @@ namespace ClipBit {
         aliasTable[button] = name
     }
 
+    /**
+     * Returns the button name (if set) for the supplied button
+     */
     //% block="get ClipBit button name for $button"
     //% button.shadow="clipBitButtonId"
     //% group="Buttons" advanced="true"
@@ -308,6 +322,9 @@ namespace ClipBit {
         return ["L1", "L2", "L3", "L4", "L5", "L6", "R6", "R5", "R4", "R3", "R2", "R1", "C", "D" ][button]
     }
 
+    /**
+     * An enumerated list of valid buttons for the Clip:bit.
+     */
     //% block="$button"
     //% blockId="clipBitButtonId"
     //% group="Buttons" advanced="true"
@@ -357,6 +374,9 @@ namespace ClipBit {
         led.enable(true)
     }
 
+    /**
+     * Clear a Clip:bit pixel. This effectively turns the LED off.
+     */
     //% block="clear ClipBit pixel $button"
     //% button.shadow="clipBitButtonId"
     //% group="Pixels and LEDs"
@@ -411,12 +431,18 @@ namespace ClipBit {
         return false
     }
 
+    /**
+     * Run this code when the selected Clip:bit button is pressed down
+     */
     //% block="on ClipBit button $button pressed"
     //% group="Buttons"
     export function onClipBitButtonPressed(button: ClipBitButton = ClipBitButton.L1, handler: () => void) {
         pressHandlers[button] = handler;
     }
 
+    /**
+     * Run this code when the selected Clip:bit button is released
+     */
     //% block="on ClipBit button $button released"
     //% group="Buttons"
     export function onClipBitButtonReleased(button: ClipBitButton = ClipBitButton.L1, handler: () => void) {
@@ -425,9 +451,6 @@ namespace ClipBit {
 
     /**
      * Code here will be run whenever any button is pressed
-     * 
-     * @param button This is the button the event came from
-     * @param name The button name
      */
     //% block="on ClipBit button $button pressed"
     //% draggableParameters="reporter"
@@ -436,6 +459,11 @@ namespace ClipBit {
         eventHandlers.push( handler );
     }
 
+    /**
+     * Turn on or off one of the Clip:bit LEDs.
+     * 
+     * This only affects the C and D LEDs as they can only be on or off, rather than the RGB ones for the Lx and Rx buttons.
+     */
     //% block="set ClipBit LED $led to $on"
     //% on.shadow="toggleOnOff"
     //% group="Pixels and LEDs"
@@ -453,6 +481,11 @@ namespace ClipBit {
             writeRegister(SYSTEM_IO, port, 0x00)
     }
 
+    /**
+     * Render a number on one of the Clip:bit 7-segment displays
+     * 
+     * This supports either DECIMAL or HEXADECIMAL modes
+     */
     //% block="set ClipBit $display display to $value || as $style"
     //% group="Digits"
     export function setDigitDisplay( display: ClipBitDisplay, value: number, style: ClipBitNumberBase = ClipBitNumberBase.DECIMAL ) {
@@ -501,6 +534,11 @@ namespace ClipBit {
         digitStates[ClipBitDisplay.RIGHT] = true
     }
 
+    /**
+     * Clear the selected 7-segment display
+     * 
+     * This will turn the display off
+     */
     //% block="clear the $display ClipBit display"
     //% group="Digits"
     export function clearDigitDisplay( display : ClipBitDisplay ) {
@@ -515,18 +553,32 @@ namespace ClipBit {
         digitStates[ClipBitDisplay.LEFT] = false
     }
 
+    /**
+     * Get the currently displayed value from the selected 7-segment display
+     */
     //% block="$display display value"
     //% group="Digits" advanced="true"
     export function getDigitValue(display: ClipBitDisplay = ClipBitDisplay.LEFT): number {
         return digitValues[display]
     }
 
+    /**
+     * Checks to see if a display module is actively displaying anything
+     */
     //% block="$display display is active"
     //% group="Digits" advanced="true"
     export function getDigitState(display: ClipBitDisplay = ClipBitDisplay.LEFT): boolean {
         return digitStates[display]
     }
 
+    /**
+     * Set the selected 7-segment display to show a (limited) set of characters.
+     * 
+     * The limitations of the 8 LEDs on a 7-segment display mean that some characters are rendered slightly
+     * strangely, but most normal ASCII characters are possible to some degree.
+     * 
+     * Note that the display modules are only capable of showing two characters, and will not scroll longer messages.
+     */
     //% block="set ClipBit $display display to the text $value"
     //% group="Digits"
     export function setDigitText(display: ClipBitDisplay, value: string) {
