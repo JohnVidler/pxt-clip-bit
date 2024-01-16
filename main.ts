@@ -327,7 +327,7 @@ namespace ClipBit {
      */
     //% block="$button"
     //% blockId="clipBitButtonId"
-    //% group="Buttons" advanced="true"
+    //% group="Buttons"
     export function clipBitButton(button: ClipBitButton = ClipBitButton.L1): number {
         return button
     }
