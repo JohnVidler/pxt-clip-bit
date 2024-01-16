@@ -1,7 +1,9 @@
 
 > Open this page at [https://johnvidler.github.io/pxt-clip-bit/](https://johnvidler.github.io/pxt-clip-bit/)
 
-## Use as Extension
+![A ClipBit r3.0, in glorious Lancaster University red](https://github.com/johnvidler/pxt-clip-bit/raw/master/.github/makecode/clipbit-red.png)
+
+## How to use this Extension
 
 This repository can be added as an **extension** in MakeCode.
 
