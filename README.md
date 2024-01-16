@@ -3,7 +3,7 @@
 
 ![A ClipBit r3.0, in glorious Lancaster University red](https://github.com/johnvidler/pxt-clip-bit/raw/master/.github/makecode/clipbit-red.png)
 
-## How to use this Extension
+# How to use this Extension
 
 This repository can be added as an **extension** in MakeCode.
 
@@ -47,34 +47,34 @@ Note that while C and D are listed, the only colours those support are 'Red' and
 ### Buttons
 
 ---
-![Block Example](https://github.com/johnvidler/pxt-clip-bit/raw/master/.github/makecode/button_enum.png)
+![A button or LED reference](https://github.com/johnvidler/pxt-clip-bit/raw/master/.github/makecode/button_enum.png)
 
-An enumerated list of valid buttons for the Clip:bit.
-
----
-![Block Example](https://github.com/johnvidler/pxt-clip-bit/raw/master/.github/makecode/on_any_clipbit_button_pressed.png)
-
-Code here will be run whenever any button is pressed
+Used to select a single button reference from the drop-down list for any of the button or pixel command blocks
 
 ---
-![Block Example](https://github.com/johnvidler/pxt-clip-bit/raw/master/.github/makecode/on_clipbit_button_pressed.png)
+![on ClipBit button x pressed named y](https://github.com/johnvidler/pxt-clip-bit/raw/master/.github/makecode/on_any_clipbit_button_pressed.png)
 
-Run this code when the selected Clip:bit button is pressed down
-
----
-![Block Example](https://github.com/johnvidler/pxt-clip-bit/raw/master/.github/makecode/on_clipbit_button_released.png)
-
-Run this code when the selected Clip:bit button is released
+The enclosed code here will be run whenever any button is pressed, and the of the button (if set) will also be supplied.
 
 ---
-![Block Example](https://github.com/johnvidler/pxt-clip-bit/raw/master/.github/makecode/is_button_pressed.png)
+![on ClipBit button x pressed](https://github.com/johnvidler/pxt-clip-bit/raw/master/.github/makecode/on_clipbit_button_pressed.png)
 
-Is this button currently being pressed down?
+Run the enclosed code when the selected Clip:bit button is pressed down
+
+---
+![on ClipBit button x released](https://github.com/johnvidler/pxt-clip-bit/raw/master/.github/makecode/on_clipbit_button_released.png)
+
+Run the enclosed code when the selected Clip:bit button is released
+
+---
+![is button x pressed?](https://github.com/johnvidler/pxt-clip-bit/raw/master/.github/makecode/is_button_pressed.png)
+
+Returns TRUE if the selected button currently being pressed down?
 
 ### Digits
 
 ---
-![Block Example](https://github.com/johnvidler/pxt-clip-bit/raw/master/.github/makecode/set_clipbit_display_to_the_text.png)
+![set ClipBit x display to the text y](https://github.com/johnvidler/pxt-clip-bit/raw/master/.github/makecode/set_clipbit_display_to_the_text.png)
 
 Set the selected 7-segment display to show a (limited) set of characters.
 
@@ -84,13 +84,13 @@ strangely, but most normal ASCII characters are possible to some degree.
 Note that the display modules are only capable of showing two characters, and will not scroll longer messages.
 
 ---
-![Block Example](https://github.com/johnvidler/pxt-clip-bit/raw/master/.github/makecode/clear_the_clipbit_display.png)
+![clear the x ClipBit display](https://github.com/johnvidler/pxt-clip-bit/raw/master/.github/makecode/clear_the_clipbit_display.png)
 
 Clear the selected 7-segment display
 This will turn the display off
 
 ---
-![Block Example](https://github.com/johnvidler/pxt-clip-bit/raw/master/.github/makecode/set_clipbit_display_to.png)
+![set ClipBit x display to number y in format z](https://github.com/johnvidler/pxt-clip-bit/raw/master/.github/makecode/set_clipbit_display_to.png)
 
 Render a number on one of the Clip:bit 7-segment displays
 This supports either DECIMAL or HEXADECIMAL modes
@@ -101,41 +101,47 @@ This supports either DECIMAL or HEXADECIMAL modes
 The following blocks are included to allow more advanced interaction with the clip:bit, and can be found bit pressing the `... more` button in the Makecode interface when the Clip:bit extension is selected
 
 ---
-![Block Example](https://github.com/johnvidler/pxt-clip-bit/raw/master/.github/makecode/the_clipbit_pixel_strip.png)
+![The clipbit pixel 'strip'](https://github.com/johnvidler/pxt-clip-bit/raw/master/.github/makecode/the_clipbit_pixel_strip.png)
 
-This variable returns the internal reference to the NeoPixel strip on the
-Clip:Bit, so it can be used with the NeoPixel extension.
-
----
-![Block Example](https://github.com/johnvidler/pxt-clip-bit/raw/master/.github/makecode/was_pressed.png)
-
-Since we last checked, has this button been pressed?
+This variable returns the internal reference to the NeoPixel strip on the Clip:Bit, so it can be used with the NeoPixel extension.
 
 ---
-![Block Example](https://github.com/johnvidler/pxt-clip-bit/raw/master/.github/makecode/get_clipbit_button_name_for.png)
+![was button x pressed](https://github.com/johnvidler/pxt-clip-bit/raw/master/.github/makecode/was_pressed.png)
+
+Since we last checked (when we last used this function for this button), has the button been pressed?
+
+---
+![get ClipBit button name for button x](https://github.com/johnvidler/pxt-clip-bit/raw/master/.github/makecode/get_clipbit_button_name_for.png)
 
 Returns the button name (if set) for the supplied button
 
 ---
-![Block Example](https://github.com/johnvidler/pxt-clip-bit/raw/master/.github/makecode/set_clipbit_button_name_to.png)
+![set CliptBit button x name to y](https://github.com/johnvidler/pxt-clip-bit/raw/master/.github/makecode/set_clipbit_button_name_to.png)
 
 Set the button name for the selected button.
-This will be returned in the general button handler, and in calls to 'getButtonName'
+This will be returned in the general button handler, and in calls to 'getButtonName'.
 
 ---
-![Block Example](https://github.com/johnvidler/pxt-clip-bit/raw/master/.github/makecode/display_is_active.png)
+![is display x active](https://github.com/johnvidler/pxt-clip-bit/raw/master/.github/makecode/display_is_active.png)
 
-Checks to see if a display module is actively displaying anything
+Checks to see if a display module is actively displaying anything.
 
 ---
-![Block Example](https://github.com/johnvidler/pxt-clip-bit/raw/master/.github/makecode/get_display_value.png)
+![get display x value](https://github.com/johnvidler/pxt-clip-bit/raw/master/.github/makecode/get_display_value.png)
 
-Get the currently displayed value from the selected 7-segment display
-
-
+Get the currently displayed value from the selected 7-segment display.
 
 
 
+# Technical Details and Publications
+
+Technical details of the board can be found here: https://johnvidler.co.uk/blog/the-clipbit-an-addon-for-the-microbit/
+
+The Clip:bit has been used in the following academic publications:
+
+> Lorraine Underwood, Elizabeth Edwards, John Edward Vidler, Elisa Rubegni, and Joe Finney. 2023. Introducing Classroom Cloudlet: a mobile, tangible, and transparent approach to Internet of Things education. In Proceedings of the 22nd Annual ACM Interaction Design and Children Conference (IDC '23). Association for Computing Machinery, New York, NY, USA, 740–744. https://doi.org/10.1145/3585088.3594487
+
+> Elizabeth Edwards, John Edward Vidler, Lorraine Underwood, Elisa Rubegni, and Joe Finney. 2023. Supporting fieldwork for primary education with computing - micro:bit, clip:bit and game controllers. In Proceedings of the 22nd Annual ACM Interaction Design and Children Conference (IDC '23). Association for Computing Machinery, New York, NY, USA, 553–557. https://doi.org/10.1145/3585088.3593897
 
 #### Metadata (used for search, rendering)
 
