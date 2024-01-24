@@ -252,6 +252,24 @@ namespace ClipBit {
     rgbLEDs.show()
     led.enable(true)
 
+    writeRegister(SYSTEM_IO, PCA9555_CMD.CONFIG_0, 0b11111101)
+    writeRegister(SYSTEM_IO, PCA9555_CMD.CONFIG_1, 0b10111111)
+
+    writeRegister(SYSTEM_IO, PCA9555_CMD.OUTPUT_0, 0b00000000)
+    writeRegister(SYSTEM_IO, PCA9555_CMD.OUTPUT_1, 0b00000000)
+
+    writeRegister(LEFT_SEGMENT, PCA9555_CMD.CONFIG_0, 0x00)
+    writeRegister(LEFT_SEGMENT, PCA9555_CMD.CONFIG_1, 0x00)
+
+    writeRegister(LEFT_SEGMENT, PCA9555_CMD.OUTPUT_0, 0xFF);
+    writeRegister(LEFT_SEGMENT, PCA9555_CMD.OUTPUT_1, 0xFF);
+
+    writeRegister(RIGHT_SEGMENT, PCA9555_CMD.CONFIG_0, 0x00)
+    writeRegister(RIGHT_SEGMENT, PCA9555_CMD.CONFIG_1, 0x00)
+
+    writeRegister(RIGHT_SEGMENT, PCA9555_CMD.OUTPUT_0, 0xFF);
+    writeRegister(RIGHT_SEGMENT, PCA9555_CMD.OUTPUT_1, 0xFF);
+
     /**
      * Returns the board identification string for the connected clip:bit (if present) or other
      * compatible device.
@@ -626,23 +644,7 @@ namespace ClipBit {
                 //    boardVersion = newVersion
 
                 // r3.0+ features (basic IO)
-                writeRegister(SYSTEM_IO, PCA9555_CMD.CONFIG_0, 0b11111101)
-                writeRegister(SYSTEM_IO, PCA9555_CMD.CONFIG_1, 0b10111111)
-
-                writeRegister(SYSTEM_IO, PCA9555_CMD.OUTPUT_0, 0b00000000)
-                writeRegister(SYSTEM_IO, PCA9555_CMD.OUTPUT_1, 0b00000000)
-
-                writeRegister(LEFT_SEGMENT, PCA9555_CMD.CONFIG_0, 0x00)
-                writeRegister(LEFT_SEGMENT, PCA9555_CMD.CONFIG_1, 0x00)
-
-                writeRegister(LEFT_SEGMENT, PCA9555_CMD.OUTPUT_0, 0xFF);
-                writeRegister(LEFT_SEGMENT, PCA9555_CMD.OUTPUT_1, 0xFF);
-
-                writeRegister(RIGHT_SEGMENT, PCA9555_CMD.CONFIG_0, 0x00)
-                writeRegister(RIGHT_SEGMENT, PCA9555_CMD.CONFIG_1, 0x00)
-
-                writeRegister(RIGHT_SEGMENT, PCA9555_CMD.OUTPUT_0, 0xFF);
-                writeRegister(RIGHT_SEGMENT, PCA9555_CMD.OUTPUT_1, 0xFF);
+                
 
                     // Here is where we would enable r3.5 version features (GPS!)
                 //    if (newVersion == "clip:bit/r3.5") {
