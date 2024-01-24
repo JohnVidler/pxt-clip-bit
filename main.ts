@@ -619,36 +619,36 @@ namespace ClipBit {
             // Re-scan every second-ish to account for hot-plug events
             if( loopCount > 10 ) {
                 loopCount = 0
-                let newVersion = getBoardString();
+                //let newVersion = getBoardString();
 
                 // Catch hot-plug events, or cases where we're knocked in situ
-                if( newVersion != boardVersion ) {
-                    boardVersion = newVersion
+                //if( newVersion != boardVersion ) {
+                //    boardVersion = newVersion
 
-                    // r3.0+ features (basic IO)
-                    writeRegister(SYSTEM_IO, PCA9555_CMD.CONFIG_0, 0b11111101)
-                    writeRegister(SYSTEM_IO, PCA9555_CMD.CONFIG_1, 0b10111111)
+                // r3.0+ features (basic IO)
+                writeRegister(SYSTEM_IO, PCA9555_CMD.CONFIG_0, 0b11111101)
+                writeRegister(SYSTEM_IO, PCA9555_CMD.CONFIG_1, 0b10111111)
 
-                    writeRegister(SYSTEM_IO, PCA9555_CMD.OUTPUT_0, 0b00000000)
-                    writeRegister(SYSTEM_IO, PCA9555_CMD.OUTPUT_1, 0b00000000)
+                writeRegister(SYSTEM_IO, PCA9555_CMD.OUTPUT_0, 0b00000000)
+                writeRegister(SYSTEM_IO, PCA9555_CMD.OUTPUT_1, 0b00000000)
 
-                    writeRegister(LEFT_SEGMENT, PCA9555_CMD.CONFIG_0, 0x00)
-                    writeRegister(LEFT_SEGMENT, PCA9555_CMD.CONFIG_1, 0x00)
+                writeRegister(LEFT_SEGMENT, PCA9555_CMD.CONFIG_0, 0x00)
+                writeRegister(LEFT_SEGMENT, PCA9555_CMD.CONFIG_1, 0x00)
 
-                    writeRegister(LEFT_SEGMENT, PCA9555_CMD.OUTPUT_0, 0xFF);
-                    writeRegister(LEFT_SEGMENT, PCA9555_CMD.OUTPUT_1, 0xFF);
+                writeRegister(LEFT_SEGMENT, PCA9555_CMD.OUTPUT_0, 0xFF);
+                writeRegister(LEFT_SEGMENT, PCA9555_CMD.OUTPUT_1, 0xFF);
 
-                    writeRegister(RIGHT_SEGMENT, PCA9555_CMD.CONFIG_0, 0x00)
-                    writeRegister(RIGHT_SEGMENT, PCA9555_CMD.CONFIG_1, 0x00)
+                writeRegister(RIGHT_SEGMENT, PCA9555_CMD.CONFIG_0, 0x00)
+                writeRegister(RIGHT_SEGMENT, PCA9555_CMD.CONFIG_1, 0x00)
 
-                    writeRegister(RIGHT_SEGMENT, PCA9555_CMD.OUTPUT_0, 0xFF);
-                    writeRegister(RIGHT_SEGMENT, PCA9555_CMD.OUTPUT_1, 0xFF);
+                writeRegister(RIGHT_SEGMENT, PCA9555_CMD.OUTPUT_0, 0xFF);
+                writeRegister(RIGHT_SEGMENT, PCA9555_CMD.OUTPUT_1, 0xFF);
 
                     // Here is where we would enable r3.5 version features (GPS!)
-                    if (newVersion == "clip:bit/r3.5") {
-                        // New board code here :)
-                    }
-                }
+                //    if (newVersion == "clip:bit/r3.5") {
+                //        // New board code here :)
+                //    }
+                //}
             }
 
             if( I2C_MODE == 0 ) {
