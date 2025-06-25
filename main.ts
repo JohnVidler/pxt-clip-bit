@@ -240,6 +240,7 @@ namespace ClipBit {
     let rgbLEDs = neopixel.create(DigitalPin.P7, 12, NeoPixelMode.RGB)
     let digitValues = [0, 0]
     let digitStates = [false, false]
+    let ledStates = [false, false]
     let buttonStates = [false, false, false, false, false, false, false, false, false, false, false, false, false, false]
     let stickyStates = [false, false, false, false, false, false, false, false, false, false, false, false, false, false]
     let aliasTable: { [key: number]: string } = {}
@@ -485,7 +486,7 @@ namespace ClipBit {
     //% block="set ClipBit LED $led to $on"
     //% on.shadow="toggleOnOff"
     //% group="Pixels and LEDs"
-    export function setClipBitLED(led: ClipBitLED = ClipBitLED.C, on: boolean = true) {
+    export function setClipBitLED(led: ClipBitLED = ClipBitLED.C, on: boolean = true): void {
         let port = PCA9555_CMD.OUTPUT_0
         let mask = 0b00000010
         if (led == ClipBitLED.D) {
@@ -493,10 +494,37 @@ namespace ClipBit {
             mask = 0b01000000
         }
 
-        if (on)
+        if (on) {
             writeRegister(SYSTEM_IO, port, mask)
-        else
+            ledStates[led] = true
+        } else {
             writeRegister(SYSTEM_IO, port, 0x00)
+            ledStates[led] = false
+        }
+    }
+
+    /**
+     * Toggle one of the Clip:bit LEDs.
+     *
+     * This only affects the C and D LEDs as they can only be on or off, rather than the RGB ones for the Lx and Rx buttons.
+     */
+    //% block="toggle ClipBit LED $led"
+    //% group="Pixels and LEDs"
+    export function toggleClipBitLED( led: ClipBitLED = ClipBitLED.C ): void {
+        let port = PCA9555_CMD.OUTPUT_0
+        let mask = 0b00000010
+        if (led == ClipBitLED.D) {
+            port = PCA9555_CMD.OUTPUT_1
+            mask = 0b01000000
+        }
+
+        if (ledStates[led]) {
+            writeRegister(SYSTEM_IO, port, 0x00)
+            ledStates[led] = false
+        } else {
+            writeRegister(SYSTEM_IO, port, mask)
+            ledStates[led] = true
+        }
     }
 
     /**
@@ -635,7 +663,7 @@ namespace ClipBit {
 
         while (true) {
             // Re-scan every second-ish to account for hot-plug events
-            if( loopCount > 10 ) {
+            if( loopCount > 50 ) {
                 loopCount = 0
                 //let newVersion = getBoardString();
 
@@ -696,7 +724,7 @@ namespace ClipBit {
                 old_b = port_b
             }
 
-            pause( 50 )
+            pause( 100 )
             loopCount++
         }
     })
